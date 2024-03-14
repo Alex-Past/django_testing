@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta, timezone
 
-from django.urls import reverse
 import pytest
 from django.test.client import Client
 

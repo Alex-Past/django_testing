@@ -28,7 +28,7 @@ def test_news_order(client, t_new):
     all_dates = [news.date for news in object_list]
     sorted_dates = sorted(all_dates, reverse=True)
     assert all_dates == sorted_dates
-    
+
 
 def test_news_count(client, t_new):
     """Тест пагинация на домашней странице."""
@@ -37,7 +37,7 @@ def test_news_count(client, t_new):
     assert 'object_list' in response.context
     object_list = response.context['object_list']
     news_count = object_list.count()
-    assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE    
+    assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
 def test_comments_order(new, client):
