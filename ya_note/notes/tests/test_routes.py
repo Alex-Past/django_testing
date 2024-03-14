@@ -81,7 +81,7 @@ class TestRoutes(TestCase):
             for client, status in clients_status:
                 with self.subTest(name=url):
                     response = client.get(url)
-                    self.assertEqual(response.status_code, status)          
+                    self.assertEqual(response.status_code, status)
 
     def test_redirects(self):
         """Тесты редиректов."""
