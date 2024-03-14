@@ -1,41 +1,45 @@
+from django.urls import reverse
 import pytest
 
-from django.urls import reverse
-
 from news.forms import CommentForm
-from yanews import settings
+from django.conf import settings
 
 
 @pytest.mark.parametrize(
-    'param_client, name',
+    'param_client, expected_value',
     (
-        (pytest.lazy_fixture('author_client'), 'news:detail'),
-        (pytest.lazy_fixture('not_author_client'), 'news:detail'),
+        (pytest.lazy_fixture('author_client'), True),
+        (pytest.lazy_fixture('not_author_client'), False),
     )
 )
-@pytest.mark.django_db
-def test_pages_contains_form(param_client, name, comment):
+def test_pages_contains_form(param_client, expected_value, comment):
     """Тест формы."""
-    url = reverse(name, args=(comment.pk,))
+    url = reverse('news:detail', args=(comment.pk,))
     response = param_client.get(url)
-    assert 'form' in response.context
-    assert isinstance(response.context['form'], CommentForm)
+    assert isinstance(response.context.get('form'), CommentForm)
 
 
-@pytest.mark.django_db
-def test_news_order_count(client, t_new):
-    """Тест сортировки новостей по дате и пагинация."""
+def test_news_order(client, t_new):
+    """Тест сортировки новостей по дате."""
     url = reverse('news:home')
     response = client.get(url)
+    assert 'object_list' in response.context
     object_list = response.context['object_list']
     all_dates = [news.date for news in object_list]
     sorted_dates = sorted(all_dates, reverse=True)
     assert all_dates == sorted_dates
+    
+
+def test_news_count(client, t_new):
+    """Тест пагинация на домашней странице."""
+    url = reverse('news:home')
+    response = client.get(url)
+    assert 'object_list' in response.context
+    object_list = response.context['object_list']
     news_count = object_list.count()
-    assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
+    assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE    
 
 
-@pytest.mark.django_db
 def test_comments_order(new, client):
     """тест сортировки комментариев."""
     url = reverse('news:detail', args=(new.id,))

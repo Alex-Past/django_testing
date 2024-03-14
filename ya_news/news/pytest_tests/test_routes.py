@@ -1,12 +1,10 @@
-import pytest
-
 from http import HTTPStatus
 
+import pytest
 from django.urls import reverse
 from pytest_django.asserts import assertRedirects
 
 
-@pytest.mark.django_db
 def test_home_availability_for_anonymous_user(client):
     """Анонимному пользователю доступна главная страница."""
     url = reverse('news:home')
@@ -18,7 +16,6 @@ def test_home_availability_for_anonymous_user(client):
     'name',
     ('news:home', 'users:login', 'users:logout', 'users:signup')
 )
-@pytest.mark.django_db
 def test_pages_availability_for_anonymous_user(client, name):
     """Доступные страницы для анонимных пользователей."""
     url = reverse(name)
@@ -67,7 +64,6 @@ def test_pages_availability_for_different_users(
         ('news:delete', pytest.lazy_fixture('pk_for_args')),
     ),
 )
-@pytest.mark.django_db
 def test_redirects(client, name, args):
     """Тесты редиректов."""
     login_url = reverse('users:login')

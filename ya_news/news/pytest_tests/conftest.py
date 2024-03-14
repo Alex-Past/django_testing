@@ -1,13 +1,18 @@
-import pytest
-
 from datetime import datetime, timedelta, timezone
 
+from django.urls import reverse
+import pytest
 from django.test.client import Client
 
-from yanews import settings
+from django.conf import settings
 from news.models import News, Comment
 
 COMMENT_TEXT = 'Текст комментария'
+
+
+@pytest.fixture(autouse=True)
+def enable_db_access_for_all_tests(db):
+    pass
 
 
 @pytest.fixture
@@ -36,21 +41,19 @@ def not_author_client(not_author):
 
 @pytest.fixture
 def new():
-    new = News.objects.create(
+    return News.objects.create(
         title='Заголовок',
         text='Текст новости',
     )
-    return new
 
 
 @pytest.fixture
 def comment(new, author):
-    comment = Comment.objects.create(
+    return Comment.objects.create(
         news=new,
         text=COMMENT_TEXT,
         author=author,
     )
-    return comment
 
 
 @pytest.fixture
@@ -77,11 +80,3 @@ def t_comment(new, author):
             news=new, author=author, text=f'Tекст {index}',
         )
         comment.created = now + timedelta(days=index)
-    return comment
-
-
-@pytest.fixture
-def form_data():
-    return {
-        'text': COMMENT_TEXT,
-    }
