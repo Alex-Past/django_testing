@@ -1,9 +1,11 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 import pytest
-from django.test.client import Client
-
 from django.conf import settings
+from django.test.client import Client
+from django.urls import reverse
+from django.utils import timezone
+
 from news.models import News, Comment
 
 COMMENT_TEXT = 'Текст комментария'
@@ -56,11 +58,6 @@ def comment(new, author):
 
 
 @pytest.fixture
-def pk_for_args(comment):
-    return (comment.pk,)
-
-
-@pytest.fixture
 def t_new():
     today = datetime.today()
     News.objects.bulk_create(
@@ -79,3 +76,38 @@ def t_comment(new, author):
             news=new, author=author, text=f'Tекст {index}',
         )
         comment.created = now + timedelta(days=index)
+
+
+@pytest.fixture
+def url_detail(new):
+    return reverse('news:detail', args=(new.id,))
+
+
+@pytest.fixture
+def url_delete(comment):
+    return reverse('news:delete', args=(comment.pk,))
+
+
+@pytest.fixture
+def url_edit(comment):
+    return reverse('news:edit', args=(comment.pk,))
+
+
+@pytest.fixture
+def url_home():
+    return reverse('news:home')
+
+
+@pytest.fixture
+def url_login():
+    return reverse('users:login')
+
+
+@pytest.fixture
+def url_logout():
+    return reverse('users:logout')
+
+
+@pytest.fixture
+def url_signup():
+    return reverse('users:signup')

@@ -1,8 +1,7 @@
-from django.urls import reverse
 import pytest
+from django.conf import settings
 
 from news.forms import CommentForm
-from django.conf import settings
 
 
 @pytest.mark.parametrize(
@@ -12,17 +11,15 @@ from django.conf import settings
         (pytest.lazy_fixture('not_author_client'), False),
     )
 )
-def test_pages_contains_form(param_client, expected_value, comment):
+def test_pages_contains_form(param_client, expected_value, url_detail):
     """Тест формы."""
-    url = reverse('news:detail', args=(comment.pk,))
-    response = param_client.get(url)
+    response = param_client.get(url_detail)
     assert isinstance(response.context.get('form'), CommentForm)
 
 
-def test_news_order(client, t_new):
+def test_news_order(client, t_new, url_home):
     """Тест сортировки новостей по дате."""
-    url = reverse('news:home')
-    response = client.get(url)
+    response = client.get(url_home)
     assert 'object_list' in response.context
     object_list = response.context['object_list']
     all_dates = [news.date for news in object_list]
@@ -30,20 +27,18 @@ def test_news_order(client, t_new):
     assert all_dates == sorted_dates
 
 
-def test_news_count(client, t_new):
+def test_news_count(client, t_new, url_home):
     """Тест пагинация на домашней странице."""
-    url = reverse('news:home')
-    response = client.get(url)
+    response = client.get(url_home)
     assert 'object_list' in response.context
     object_list = response.context['object_list']
     news_count = object_list.count()
     assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
-def test_comments_order(new, client):
+def test_comments_order(client, t_comment, url_detail):
     """тест сортировки комментариев."""
-    url = reverse('news:detail', args=(new.id,))
-    response = client.get(url)
+    response = client.get(url_detail)
     assert 'news' in response.context
     news = response.context['news']
     all_comments = news.comment_set.all()
