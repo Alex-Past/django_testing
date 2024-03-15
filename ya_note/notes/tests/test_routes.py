@@ -1,30 +1,19 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
 from django.urls import reverse
 
-from notes.models import Note
+from .fixtures import BaseTestNote
 
 User = get_user_model()
 
 
-class TestRoutes(TestCase):
+class TestRoutes(BaseTestNote):
     """Тесты путей."""
 
     @classmethod
     def setUpTestData(cls):
-        cls.author = User.objects.create(username='Иван Иваныч')
-        cls.reader = User.objects.create(username='Читатель простой')
-        cls.note = Note.objects.create(title='Заголовок',
-                                       text='Текст',
-                                       author=cls.author,
-                                       slug='slug')
-        cls.url = reverse('notes:home')
-        cls.reader_client = Client()
-        cls.reader_client.force_login(cls.reader)
-        cls.author_client = Client()
-        cls.author_client.force_login(cls.author)
+        super().setUpTestData()
         cls.URL_LOGIN = reverse('users:login')
         cls.URL_LOGOUT = reverse('users:logout')
         cls.URL_SINGUP = reverse('users:signup')
@@ -38,7 +27,7 @@ class TestRoutes(TestCase):
 
     def test_home_availability_for_anonymous_user(self):
         """Анонимному пользователю доступна главная страница."""
-        response = self.client.get(self.url)
+        response = self.client.get(self.URL_HOME)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_pages_availability_for_anonymous_user(self):
